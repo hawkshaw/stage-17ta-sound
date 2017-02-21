@@ -4,6 +4,7 @@
 void ofApp::setup(){
     gui.setup();
     gui.setPosition(GUI_OFFSET_X, 0);
+    gui.setDefaultBackgroundColor(ofColor(20, 20, 20));
     guiLoop.setup();
     guiLoop.setPosition(GUI_OFFSET_X+gui.getWidth(), 0);
     guiLoop.setName("Loop");
@@ -73,11 +74,13 @@ void ofApp::setup(){
     b_Black=false;
     
     guiVideo.setup();
+
     guiVideo.add(videoShiftX.setup("ShiftX",0,-100,100));
     guiVideo.add(videoShiftY.setup("ShiftY",0,-100,100));
     guiVideo.add(videoRotateX.setup("RotateX",0,-10.0,10.0));
     guiVideo.add(videoRotateY.setup("RotateY",0,-10.0,10.0));
     guiVideo.setPosition(GUI_OFFSET_X,gui.getHeight());
+    guiVideo.setDefaultBackgroundColor(ofColor(20, 20, 20));
     
     video.load("test.mp4");
     videoH=video.getHeight();
@@ -128,6 +131,7 @@ void ofApp::update(){
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    ofBackground(0, 0, 0);
     ofPushMatrix();
     if(video.isPlaying()){
         ofTranslate(ofGetWindowWidth()/2, ofGetWindowHeight()/2);
@@ -156,6 +160,12 @@ void ofApp::draw(){
                 int guiPosY = gui.getFloatSlider(vs_SoundTag[startIdx+i]).getPosition().y + 12;
                 ofDrawBitmapString((i+1)%10, guiPosX, guiPosY);
             }
+        }
+        ofSetColor(255);
+        for(int i=0; i< i_SoundNum; i++){
+            int guiPosX = guiFadeOut.getFloatSlider(vs_SoundTag[i]).getPosition().x + guiFadeOut.getWidth()+5;
+            int guiPosY = guiFadeOut.getFloatSlider(vs_SoundTag[i]).getPosition().y + 12;
+            ofDrawBitmapString(ve_SoundState[i], guiPosX, guiPosY);
         }
         ofPopStyle();
     }else{
@@ -202,6 +212,7 @@ void ofApp::keyPressed(int key){
                 if(guiFadeIn.getFloatSlider(vs_SoundTag[soundIdx])==0){
                     cout << "CI" << vs_SoundTag[soundIdx] <<endl;
                     gui.getFloatSlider(vs_SoundTag[soundIdx])=1.0;
+                    vo_SoundPlayer[soundIdx].setVolume(1.0);
                     ve_SoundState[soundIdx]=SOUND_STATE_PLAYING;
                 }else{
                     cout << "FI" << vs_SoundTag[soundIdx] <<endl;
