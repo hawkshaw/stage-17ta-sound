@@ -12,6 +12,8 @@ void ofApp::setup(){
     guiFadeIn.setName("fade In");
     guiFadeOut.setup();
     guiFadeOut.setName("fade Out");
+    guiMaxVolume.setup();
+    guiMaxVolume.setName("max Volume");
     
     vc_StopChar.push_back('q');//1
     vc_StopChar.push_back('w');
@@ -41,6 +43,9 @@ void ofApp::setup(){
     ofxFloatSlider* fadeOutBuf;
     fadeOutBuf = new ofxFloatSlider[i_SoundNum];
     
+    ofxFloatSlider* maxVolumeBuf;
+    maxVolumeBuf = new ofxFloatSlider[i_SoundNum];
+    
     for(int i=0; i < i_SoundNum;i++){
         settings.pushTag("FILE", i);
         vs_SoundPath.push_back(ofToString(settings.getValue("PATH", "filepathdummy")));
@@ -52,6 +57,7 @@ void ofApp::setup(){
         guiLoop.add(toggleBuf[i].setup(vs_SoundTag[i],(bool)(settings.getValue("LOOP", 0))));
         guiFadeIn.add(fadeInBuf[i].setup(vs_SoundTag[i],(settings.getValue("FADE_IN_SEC", 0)),0.0,5.0));
         guiFadeOut.add(fadeOutBuf[i].setup(vs_SoundTag[i],(settings.getValue("FADE_OUT_SEC", 0)),0.0,5.0));
+        guiMaxVolume.add(maxVolumeBuf[i].setup(vs_SoundTag[i],(settings.getValue("VOLUME", 1.0)),0.0,2.0));
         vb_GuiLoopState.push_back((bool)(settings.getValue("LOOP", 0)));
         ve_SoundState.push_back(SOUND_STATE_STOP);
         toggleBuf[i].setSize(toggleBuf[i].getHeight(), toggleBuf[i].getHeight());
@@ -60,7 +66,7 @@ void ofApp::setup(){
         fadeOutBuf[i].setTextColor(ofColor(255, 255, 255, 0));
         ofSoundPlayer soundBuf;
         soundBuf.load(vs_SoundPath[i]);
-        soundBuf.setVolume(1.0);
+        soundBuf.setVolume(settings.getValue("VOLUME", 1.0));
         soundBuf.setLoop(toggleBuf[i]);
         vo_SoundPlayer.push_back(soundBuf);
         
@@ -70,6 +76,7 @@ void ofApp::setup(){
     
     guiFadeIn.setPosition(guiLoop.getPosition()+ofPoint(guiLoop.getWidth(),0));
     guiFadeOut.setPosition(guiFadeIn.getPosition()+ofPoint(guiFadeIn.getWidth(),0));
+    guiMaxVolume.setPosition(guiFadeOut.getPosition()+ofPoint(guiFadeOut.getWidth(),0));
     b_GuiDraw = true;
     b_Black=false;
     
@@ -95,24 +102,24 @@ void ofApp::update(){
         float volumeBuf;
         switch(ve_SoundState[i]){
             case SOUND_STATE_FADE_IN:
-                volumeBuf = vo_SoundPlayer[i].getVolume();
+                volumeBuf = vo_SoundPlayer[i].getVolume()/guiMaxVolume.getFloatSlider(vs_SoundTag[i]);
                 volumeBuf+= 1.0/(ofGetFrameRate()*guiFadeIn.getFloatSlider(vs_SoundTag[i]));
                 if(volumeBuf>1.0){
                     volumeBuf=1.0;
                     ve_SoundState[i]=SOUND_STATE_PLAYING;
                 }
-                vo_SoundPlayer[i].setVolume(volumeBuf);
+                vo_SoundPlayer[i].setVolume(volumeBuf*guiMaxVolume.getFloatSlider(vs_SoundTag[i]));
                 gui.getFloatSlider(vs_SoundTag[i])=volumeBuf;
                 break;
             case SOUND_STATE_FADE_OUT:
-                volumeBuf = vo_SoundPlayer[i].getVolume();
+                volumeBuf = vo_SoundPlayer[i].getVolume()/guiMaxVolume.getFloatSlider(vs_SoundTag[i]);
                 volumeBuf-= 1.0/(ofGetFrameRate()*guiFadeOut.getFloatSlider(vs_SoundTag[i]));
                 if(volumeBuf<0.0){
                     volumeBuf=0.0;
                     ve_SoundState[i]=SOUND_STATE_STOP;
                     vo_SoundPlayer[i].stop();
                 }
-                vo_SoundPlayer[i].setVolume(volumeBuf);
+                vo_SoundPlayer[i].setVolume(volumeBuf*guiMaxVolume.getFloatSlider(vs_SoundTag[i]));
                 gui.getFloatSlider(vs_SoundTag[i])=volumeBuf;
                 break;
             case SOUND_STATE_PLAYING:
@@ -149,6 +156,7 @@ void ofApp::draw(){
         guiLoop.draw();
         guiFadeIn.draw();
         guiFadeOut.draw();
+        guiMaxVolume.draw();
         guiVideo.draw();
         int startIdx;
         startIdx = i_SoundSetId * KEY_NUM;
@@ -163,8 +171,8 @@ void ofApp::draw(){
         }
         ofSetColor(255);
         for(int i=0; i< i_SoundNum; i++){
-            int guiPosX = guiFadeOut.getFloatSlider(vs_SoundTag[i]).getPosition().x + guiFadeOut.getWidth()+5;
-            int guiPosY = guiFadeOut.getFloatSlider(vs_SoundTag[i]).getPosition().y + 12;
+            int guiPosX = guiMaxVolume.getFloatSlider(vs_SoundTag[i]).getPosition().x + guiFadeOut.getWidth()+5;
+            int guiPosY = guiMaxVolume.getFloatSlider(vs_SoundTag[i]).getPosition().y + 12;
             ofDrawBitmapString(ve_SoundState[i], guiPosX, guiPosY);
         }
         ofPopStyle();
@@ -212,7 +220,7 @@ void ofApp::keyPressed(int key){
                 if(guiFadeIn.getFloatSlider(vs_SoundTag[soundIdx])==0){
                     cout << "CI" << vs_SoundTag[soundIdx] <<endl;
                     gui.getFloatSlider(vs_SoundTag[soundIdx])=1.0;
-                    vo_SoundPlayer[soundIdx].setVolume(1.0);
+                    vo_SoundPlayer[soundIdx].setVolume(1.0*guiMaxVolume.getFloatSlider(vs_SoundTag[soundIdx]));
                     ve_SoundState[soundIdx]=SOUND_STATE_PLAYING;
                 }else{
                     cout << "FI" << vs_SoundTag[soundIdx] <<endl;

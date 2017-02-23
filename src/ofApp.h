@@ -40,6 +40,7 @@ class ofApp : public ofBaseApp{
     ofxPanel guiLoop;
     ofxPanel guiFadeIn;
     ofxPanel guiFadeOut;
+    ofxPanel guiMaxVolume;
     vector<bool> vb_GuiLoopState;
     
     vector<string> vs_SoundPath;
