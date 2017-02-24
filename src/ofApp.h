@@ -65,6 +65,7 @@ class ofApp : public ofBaseApp{
     ofxPanel guiVideo;
     ofxIntSlider videoShiftX;
     ofxIntSlider videoShiftY;
+    ofxFloatSlider videoZoom;
     ofxFloatSlider videoRotateX;
     ofxFloatSlider videoRotateY;
 };

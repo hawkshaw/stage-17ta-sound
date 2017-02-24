@@ -82,14 +82,15 @@ void ofApp::setup(){
     
     guiVideo.setup();
 
-    guiVideo.add(videoShiftX.setup("ShiftX",0,-100,100));
-    guiVideo.add(videoShiftY.setup("ShiftY",0,-100,100));
-    guiVideo.add(videoRotateX.setup("RotateX",0,-10.0,10.0));
-    guiVideo.add(videoRotateY.setup("RotateY",0,-10.0,10.0));
+    guiVideo.add(videoShiftX.setup("ShiftX",0,-200,200));
+    guiVideo.add(videoShiftY.setup("ShiftY",0,-200,200));
+    guiVideo.add(videoRotateX.setup("RotateX",0,-20.0,20.0));
+    guiVideo.add(videoRotateY.setup("RotateY",0,-20.0,20.0));
+    guiVideo.add(videoZoom.setup("Zoom",1.0,1.0,1.5));
     guiVideo.setPosition(GUI_OFFSET_X,gui.getHeight());
     guiVideo.setDefaultBackgroundColor(ofColor(20, 20, 20));
     
-    video.load("test.mp4");
+    video.load("butainohi_final.mp4");
     videoH=video.getHeight();
     videoW=video.getWidth();
 }
@@ -145,6 +146,7 @@ void ofApp::draw(){
         ofTranslate(videoShiftX, videoShiftY);
         ofRotateY(videoRotateY);
         ofRotateX(videoRotateX);
+        ofScale(videoZoom, videoZoom);
         video.draw(-ofGetWindowWidth()/2, -ofGetWindowHeight()/2, ofGetWindowWidth(), ofGetWindowWidth()*videoH/videoW);
     }
     ofPopMatrix();
